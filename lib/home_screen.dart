@@ -157,6 +157,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List filterDataByDate(DateTime targetDate) {
+      return weatherData?.where((item) {
+            final currentDate = DateTime.parse(item['jamCuaca']);
+            return currentDate.day == targetDate.day &&
+                currentDate.month == targetDate.month &&
+                currentDate.year == targetDate.year;
+          }).toList() ??
+          [];
+    }
+
+    final todayDate = DateTime.now();
+    final tomorrowDate = DateTime.now().add(Duration(days: 1));
+
+    List todayWeatherData = filterDataByDate(todayDate);
+    List tomorrowWeatherData = filterDataByDate(tomorrowDate);
     return Scaffold(
       appBar: AppBar(
         title: Text("Select Kota"),
@@ -205,27 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ],
             ),
-            // Container(
-            //   height: 150,
-            //   child: ListView.builder(
-            //     scrollDirection: Axis.horizontal,
-            //     itemCount: todayWeatherData.length,
-            //     itemBuilder: (BuildContext context, int index) {
-            //       return buildWeatherCard(todayWeatherData[index]);
-            //     },
-            //   ),
-            // ),
-            // Container(
-            //   height: 150,
-            //   child: ListView.builder(
-            //     scrollDirection: Axis.horizontal,
-            //     itemCount: tomorrowWeatherData.length,
-            //     itemBuilder: (BuildContext context, int index) {
-            //       return buildWeatherCard(tomorrowWeatherData[index]);
-            //     },
-            //   ),
-            // )
-            _buildWeatherList()
+            Container(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: todayWeatherData.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return buildWeatherCard(todayWeatherData[index]);
+                },
+              ),
+            ),
+            Container(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: tomorrowWeatherData.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return buildWeatherCard(tomorrowWeatherData[index]);
+                },
+              ),
+            )
           ],
         ),
       ),
@@ -242,39 +256,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-      ),
-    );
-  }
-
-  Widget _buildWeatherList() {
-    List filterDataByDate(DateTime targetDate) {
-      return weatherData?.where((item) {
-            final currentDate = DateTime.parse(item['jamCuaca']);
-            return currentDate.day == targetDate.day &&
-                currentDate.month == targetDate.month &&
-                currentDate.year == targetDate.year;
-          }).toList() ??
-          [];
-    }
-
-    final todayDate = DateTime.now();
-    final tomorrowDate = DateTime.now().add(Duration(days: 1));
-
-    List todayWeatherData = filterDataByDate(todayDate);
-    List tomorrowWeatherData = filterDataByDate(tomorrowDate);
-    return Container(
-      height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _selectedIndex == 0
-            ? todayWeatherData.length
-            : tomorrowWeatherData.length,
-        itemBuilder: (BuildContext context, int index) {
-          final weatherData = _selectedIndex == 0
-              ? todayWeatherData[index]
-              : tomorrowWeatherData[index];
-          return buildWeatherCard(weatherData);
-        },
       ),
     );
   }
@@ -298,6 +279,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 4),
+
+              // Text(
+              //   weather['cuaca'] ?? 'N/A',
+              //   style: const TextStyle(
+              //     fontSize: 18,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
               SizedBox(height: 8),
               if (weatherCode != 'N/A')
                 Image.network(
