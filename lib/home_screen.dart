@@ -1,6 +1,5 @@
-// ignore_for_file: unnecessary_cast
-
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,7 +8,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> kotaList = [];
+  List<String> kotaList = ['Select Kota'];
+
   String? selectedKota;
   int id = 0;
   List<String> idkota = [];
@@ -17,18 +17,61 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    _fetchCurrentLocation();
   }
 
-  Future<void> fetchData() async {
+  Future<void> _fetchCurrentLocation() async {
     try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Get the nearest city using the latitude and longitude
+      await _fetchNearestCity(position.latitude, position.longitude);
+
+      // Fetch additional data based on the selected city
+      fetchAdditionalData();
+    } catch (error) {
+      print('Error fetching current location: $error');
+    }
+  }
+
+  Future<void> _fetchNearestCity(double latitude, double longitude) async {
+    try {
+      // Use the latitude and longitude to get the nearest city
       List<dynamic> data = await Endpoint.instance.kodewilayah();
+      double nearestDistance = double.maxFinite;
+      String nearestCity = '';
+
+      for (var item in data) {
+        double lat = double.parse(item['lat']);
+        double lon = double.parse(item['lon']);
+
+        double distance = Geolocator.distanceBetween(
+          latitude,
+          longitude,
+          lat,
+          lon,
+        );
+
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestCity = item['kota'] as String;
+          id = int.parse(item['id']);
+        }
+      }
+
+      // Update the selected city with the nearest city
       setState(() {
-        kotaList = data.map((item) => item['kota'] as String).toList();
-        idkota = data.map((item) => item['id'] as String).toList();
+        kotaList.clear(); // Clear existing items
+        kotaList.add('Select Kota'); // Add "Select Kota" as the first item
+        for (var item in data) {
+          kotaList.add(item['kota'] as String); // Add other kota names
+        }
+        selectedKota = nearestCity; // Set the selected city to the nearest city
       });
     } catch (error) {
-      print('Error fetching data: $error');
+      print('Error fetching nearest city: $error');
     }
   }
 
@@ -48,58 +91,68 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Select Kota"),
       ),
       body: RefreshIndicator(
-          onRefresh: fetchData,
-          child: Column(
-            children: [
-              Center(
-                child: DropdownButton<String>(
-                  value: selectedKota,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedKota = newValue;
-                      int index = kotaList.indexOf(newValue!);
-                      if (index != -1 && index < idkota.length) {
-                        String selectedId = idkota[index];
-                        id = int.parse(selectedId);
-                        fetchAdditionalData();
-                      }
-                    });
-                  },
-                  items: kotaList.map((kota) {
-                    return DropdownMenuItem<String>(
-                      value: kota,
-                      child: Text(kota),
-                    );
-                  }).toList(),
-                  hint: const Text(
-                    "Please choose ",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  print(
-                      'TextButton pressed! Selected Kota: $selectedKota, ID: $id');
+        onRefresh: _fetchCurrentLocation,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Center(
+              child: DropdownButton<String>(
+                value: selectedKota,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedKota = newValue;
+                    int index = kotaList.indexOf(newValue!);
+                    if (index != -1 && index < idkota.length) {
+                      String selectedId = idkota[index];
+                      id = int.parse(selectedId);
+                      fetchAdditionalData();
+                    }
+                  });
                 },
-                child: Text(
-                  'Submit',
+                items: kotaList.map((kota) {
+                  return DropdownMenuItem<String>(
+                    value: kota,
+                    child: Text(kota),
+                  );
+                }).toList(),
+                hint: const Text(
+                  "Please choose ",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                print(
+                    'TextButton pressed! Selected Kota: $selectedKota, ID: $id');
+              },
+              child: Text(
+                'Submit',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
                 ),
               ),
-            ],
-          )),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+            ),
+            Text(
+              selectedKota ?? 'Submit',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
