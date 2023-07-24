@@ -27,11 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
-      // Get the nearest city using the latitude and longitude
       await _fetchNearestCity(position.latitude, position.longitude);
-
-      // Fetch additional data based on the selected city
       fetchAdditionalData();
     } catch (error) {
       print('Error fetching current location: $error');
