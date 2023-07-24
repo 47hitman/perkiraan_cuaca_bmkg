@@ -5,29 +5,31 @@ import 'package:http/http.dart' as http;
 import 'custom_exception.dart';
 
 class Endpoint {
+  Endpoint._privateConstructor();
   String apiAddress = "https://ibnux.github.io/BMKG-importer/";
+  static final Endpoint instance = Endpoint._privateConstructor();
 
 //get kode wilayah
   Future kodewilayah() async {
     final http.Response response = await http.get(
       Uri.parse('${apiAddress}cuaca/wilayah.json'),
     );
-    // print("code cuaca");
-    // print(response.request);
-    // print(response.body);
-    // print(response);
+    print("code cuaca");
+    print(response.request);
+    print(response.body);
+    print(response);
     return _response(response);
   }
 
 //data cuaca perwilayah
-  Future cuacawilayah(String wilayahCode) async {
+  Future cuacawilayah(int wilayahCode) async {
     final http.Response response = await http.get(
       Uri.parse('${apiAddress}cuaca/$wilayahCode.json'),
     );
-    // print("code cuaca");
-    // print(response.request);
-    // print(response.body);
-    // print(response);
+    print("code cuaca");
+    print(response.request);
+    print(response.body);
+    print(response);
     return _response(response);
   }
 }
