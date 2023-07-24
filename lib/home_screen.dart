@@ -1,12 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,12 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String waktu = "";
   String suhu = "";
   String cuaca = "";
-  int _selectedIndex = 0;
   String? weatherStatus;
   @override
   void initState() {
     super.initState();
-
     _fetchCurrentLocation();
   }
 
@@ -44,13 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  Uint8List? _imageBytes;
   Future<void> _fetchNearestCity(double latitude, double longitude) async {
     try {
       List<dynamic> data = await Endpoint.instance.kodewilayah();
@@ -128,7 +116,24 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       var value = await Endpoint.instance.cuacawilayah(id);
       setState(() {
-        print('Value from cuacawilayah: $value');
+        weatherData = value;
+
+        // Assuming weatherData is a list of maps
+        if (weatherData!.isNotEmpty) {
+          // Accessing the first map in the list to get the data
+          Map<String, dynamic> firstData = weatherData![0];
+
+          // Extracting and setting values
+          cuaca = firstData['cuaca'] ?? 'N/A';
+          idcuaca = firstData['kodeCuaca'] ?? 'N/A';
+          suhu = firstData['tempC'] ?? 'N/A';
+          waktu = firstData['jamCuaca'] ?? 'N/A';
+        }
+        print(cuaca);
+        print(idcuaca);
+        print(suhu);
+        print(waktu);
+        print('Value from cuacawilayah: $weatherData');
         // Update the value and selectedKota after fetching data
       });
     } catch (error) {
@@ -158,57 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.blue.withOpacity(0.7),
         body: Column(
           children: [
-            Container(
-              height: 400,
-              color: Colors.white,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 90,
-                  ),
-                  dropdownitem(),
-                  Text(
-                    '$suhu°',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 80,
-                    ),
-                  ),
-                  Text(
-                    formatDateToWords(waktu),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    cuaca,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                  if (idcuaca != 'N/A')
-                    Image.network(
-                      'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
-                      width: 50, // You can adjust the size as needed
-                      height: 50,
-                    ),
-                  Row(
-                    children: [
-                      if (weatherStatus != null)
-                        Text(
-                          'Weather Status: $weatherStatus', // Display the fetched weather status
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            tophome(),
             Container(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -311,14 +266,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 4),
-              // Text(
-              //   weather['cuaca'] ?? 'N/A',
-              //   style: const TextStyle(
-              //     fontSize: 18,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
               SizedBox(height: 8),
               if (weatherCode != 'N/A')
                 Image.network(
@@ -337,6 +284,73 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget tophome() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10), // Add the border radius here
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+        // You can add other properties like gradients, borders, etc.
+      ),
+      height: 400,
+      // color: Colors.white,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 90,
+          ),
+          dropdownitem(),
+          Text(
+            '$suhu°',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 80,
+            ),
+          ),
+          Text(
+            formatDateToWords(waktu),
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            cuaca,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+          if (idcuaca != 'N/A')
+            Image.network(
+              'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
+              width: 50, // You can adjust the size as needed
+              height: 50,
+            ),
+          Row(
+            children: [
+              if (weatherStatus != null)
+                Text(
+                  'Weather Status: $weatherStatus', // Display the fetched weather status
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
