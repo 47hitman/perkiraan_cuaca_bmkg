@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String waktu = "";
   String suhu = "";
   String cuaca = "";
-
+  int _selectedIndex = 0;
   String? weatherStatus;
   @override
   void initState() {
@@ -61,6 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print('Error while fetching the image: $e');
     }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   Uint8List? _imageBytes;
@@ -151,6 +157,96 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Select Kota"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              height: 20,
+            ),
+            dropdownitem(),
+            Text(
+              '$suhu°',
+              style: const TextStyle(
+                fontSize: 80,
+              ),
+            ),
+            Text(
+              formatDateToWords(waktu),
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              cuaca,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            if (idcuaca != 'N/A')
+              Image.network(
+                'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
+                width: 50, // You can adjust the size as needed
+                height: 50,
+              ),
+            Row(
+              children: [
+                if (weatherStatus != null)
+                  Text(
+                    'Weather Status: $weatherStatus', // Display the fetched weather status
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                  ),
+              ],
+            ),
+            // Container(
+            //   height: 150,
+            //   child: ListView.builder(
+            //     scrollDirection: Axis.horizontal,
+            //     itemCount: todayWeatherData.length,
+            //     itemBuilder: (BuildContext context, int index) {
+            //       return buildWeatherCard(todayWeatherData[index]);
+            //     },
+            //   ),
+            // ),
+            // Container(
+            //   height: 150,
+            //   child: ListView.builder(
+            //     scrollDirection: Axis.horizontal,
+            //     itemCount: tomorrowWeatherData.length,
+            //     itemBuilder: (BuildContext context, int index) {
+            //       return buildWeatherCard(tomorrowWeatherData[index]);
+            //     },
+            //   ),
+            // )
+            _buildWeatherList()
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.today),
+            label: 'Today',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'Tomorrow',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildWeatherList() {
     List filterDataByDate(DateTime targetDate) {
       return weatherData?.where((item) {
             final currentDate = DateTime.parse(item['jamCuaca']);
@@ -166,112 +262,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List todayWeatherData = filterDataByDate(todayDate);
     List tomorrowWeatherData = filterDataByDate(tomorrowDate);
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Select Kota"),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: 20,
-              ),
-              dropdownitem(),
-              Text(
-                '$suhu°',
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              _imageBytes != null
-                  ? Image.memory(
-                      _imageBytes!) // Display the image using MemoryImage
-                  : ElevatedButton(
-                      onPressed: _fetchAndDisplayImage,
-                      child: Text('Fetch and Display Image'),
-                    ),
-              Text(
-                formatDateToWords(waktu),
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                cuaca,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                idcuaca.toString(),
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              // TextButton(
-              //   onPressed: () {
-              //     print(
-              //         'TextButton pressed! Selected Kota: $selectedKota, ID: $id');
-              //   },
-              //   child: Text(
-              //     'Submit',
-              //     style: TextStyle(
-              //       color: Colors.white,
-              //       fontSize: 18,
-              //     ),
-              //   ),
-              //   style: ButtonStyle(
-              //     backgroundColor:
-              //         MaterialStateProperty.all<Color>(Colors.blue),
-              //   ),
-              // ),
-              Text(
-                selectedKota ?? 'Submit',
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
-              ),
-              Row(
-                children: [
-                  if (weatherStatus != null)
-                    Text(
-                      'Weather Status: $weatherStatus', // Display the fetched weather status
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                    ),
-                ],
-              ),
-              Container(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: todayWeatherData.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildWeatherCard(todayWeatherData[index]);
-                  },
-                ),
-              ),
-              Container(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: tomorrowWeatherData.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return buildWeatherCard(tomorrowWeatherData[index]);
-                  },
-                ),
-              )
-            ],
-          ),
-        ));
+    return Container(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _selectedIndex == 0
+            ? todayWeatherData.length
+            : tomorrowWeatherData.length,
+        itemBuilder: (BuildContext context, int index) {
+          final weatherData = _selectedIndex == 0
+              ? todayWeatherData[index]
+              : tomorrowWeatherData[index];
+          return buildWeatherCard(weatherData);
+        },
+      ),
+    );
   }
 
   Widget buildWeatherCard(Map<String, dynamic> weather) {
+    String weatherCode = weather['kodeCuaca'] ?? 'N/A';
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -288,22 +298,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
-              Text(
-                weather['kodeCuaca'] ?? 'N/A',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              SizedBox(height: 8),
+              if (weatherCode != 'N/A')
+                Image.network(
+                  'https://ibnux.github.io/BMKG-importer/icon/$weatherCode.png',
+                  width: 50, // You can adjust the size as needed
+                  height: 50,
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                weather['cuaca'] ?? 'N/A',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               SizedBox(height: 4),
               Text(
                 '${weather['tempC']}°' ?? 'N/A',
