@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
@@ -38,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchNearestCity(double latitude, double longitude) async {
     try {
-      // Use the latitude and longitude to get the nearest city
       List<dynamic> data = await Endpoint.instance.kodewilayah();
       double nearestDistance = double.maxFinite;
       String nearestCity = '';
@@ -61,14 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
 
-      // Update the selected city with the nearest city
       setState(() {
-        kotaList.clear(); // Clear existing items
-        kotaList.add('Select Kota'); // Add "Select Kota" as the first item
+        kotaList.clear();
+        kotaList.add('Select Kota');
         for (var item in data) {
-          kotaList.add(item['kota'] as String); // Add other kota names
+          kotaList.add(item['kota'] as String);
         }
-        selectedKota = nearestCity; // Set the selected city to the nearest city
+        selectedKota = nearestCity;
       });
     } catch (error) {
       print('Error fetching nearest city: $error');
@@ -97,36 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               height: 20,
             ),
-            Center(
-              child: DropdownButton<String>(
-                value: selectedKota,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedKota = newValue;
-                    int index = kotaList.indexOf(newValue!);
-                    if (index != -1 && index < idkota.length) {
-                      String selectedId = idkota[index];
-                      id = int.parse(selectedId);
-                      fetchAdditionalData();
-                    }
-                  });
-                },
-                items: kotaList.map((kota) {
-                  return DropdownMenuItem<String>(
-                    value: kota,
-                    child: Text(kota),
-                  );
-                }).toList(),
-                hint: const Text(
-                  "Please choose ",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
+            dropdownitem(),
             TextButton(
               onPressed: () {
                 print(
@@ -151,6 +122,39 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget dropdownitem() {
+    return Center(
+      child: DropdownButton<String>(
+        value: selectedKota,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedKota = newValue;
+            int index = kotaList.indexOf(newValue!);
+            if (index != -1 && index < idkota.length) {
+              String selectedId = idkota[index];
+              id = int.parse(selectedId);
+              fetchAdditionalData();
+            }
+          });
+        },
+        items: kotaList.map((kota) {
+          return DropdownMenuItem<String>(
+            value: kota,
+            child: Text(kota),
+          );
+        }).toList(),
+        hint: const Text(
+          "Please choose ",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
