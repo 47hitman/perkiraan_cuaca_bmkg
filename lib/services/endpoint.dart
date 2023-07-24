@@ -32,6 +32,17 @@ class Endpoint {
     print(response);
     return _response(response);
   }
+
+  Future image(int kodecuaca) async {
+    final http.Response response = await http.get(
+      Uri.parse('$apiAddress$kodecuaca.png'),
+    );
+    print("code cuaca");
+    print(response.request);
+    print(response.body);
+    print(response);
+    return _response(response);
+  }
 }
 
 dynamic _response(http.Response response) {

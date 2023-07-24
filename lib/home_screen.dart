@@ -1,9 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -25,9 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Endpoint.instance.cuacawilayah(id).then((value) => setState(() {
-          // status = value["status"];
-        }));
+    _fetchAndDisplayImage();
     _fetchCurrentLocation();
   }
 
@@ -43,6 +44,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _fetchAndDisplayImage() async {
+    final imageUrl = 'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png';
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+
+      if (response.statusCode == 200) {
+        // If the request is successful and the image is fetched
+        // You can use the MemoryImage to display the image directly from the response body.
+        setState(() {
+          _imageBytes = response.bodyBytes;
+        });
+      } else {
+        print('Failed to fetch the image. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error while fetching the image: $e');
+    }
+  }
+
+  Uint8List? _imageBytes;
   Future<void> _fetchNearestCity(double latitude, double longitude) async {
     try {
       List<dynamic> data = await Endpoint.instance.kodewilayah();
@@ -82,11 +103,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String formatDate(String dateTimeString) {
     try {
-      DateTime dateTime = DateTime.parse(dateTimeString);
+      DateTime? dateTime = DateTime.tryParse(dateTimeString);
+      if (dateTime == null) {
+        print('Error formatting date: Invalid date format');
+        return 'N/A';
+      }
       return DateFormat('HH:mm').format(dateTime);
     } catch (error) {
       print('Error formatting date: $error');
       return 'N/A';
+    }
+  }
+
+  String formatDateToWords(String dateTimeString) {
+    try {
+      DateTime? dateTime = DateTime.tryParse(dateTimeString);
+      if (dateTime == null) {
+        print('Error parsing date: Invalid date format');
+        return 'Invalid Date';
+      }
+
+      String day = DateFormat('EEEE').format(dateTime);
+      String month = DateFormat('MMMM').format(dateTime);
+      int date = dateTime.day;
+      String year = DateFormat('y').format(dateTime);
+      String time = DateFormat('HH:mm').format(dateTime);
+
+      // Format the date as "dayOfMonth monthName year, time" (e.g., "24 July 2023, 00:00")
+      return '$date $month $year, $time';
+    } catch (error) {
+      print('Error parsing date: $error');
+      return 'Invalid Date';
     }
   }
 
@@ -138,8 +185,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 16,
                 ),
               ),
+              _imageBytes != null
+                  ? Image.memory(
+                      _imageBytes!) // Display the image using MemoryImage
+                  : ElevatedButton(
+                      onPressed: _fetchAndDisplayImage,
+                      child: Text('Fetch and Display Image'),
+                    ),
               Text(
-                waktu,
+                formatDateToWords(waktu),
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -156,23 +210,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 16,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  print(
-                      'TextButton pressed! Selected Kota: $selectedKota, ID: $id');
-                },
-                child: Text(
-                  'Submit',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                ),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.blue),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: () {
+              //     print(
+              //         'TextButton pressed! Selected Kota: $selectedKota, ID: $id');
+              //   },
+              //   child: Text(
+              //     'Submit',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 18,
+              //     ),
+              //   ),
+              //   style: ButtonStyle(
+              //     backgroundColor:
+              //         MaterialStateProperty.all<Color>(Colors.blue),
+              //   ),
+              // ),
               Text(
                 selectedKota ?? 'Submit',
                 style: const TextStyle(
@@ -270,25 +324,49 @@ class _HomeScreenState extends State<HomeScreen> {
         value: selectedKota,
         onChanged: (String? newValue) {
           setState(() {
+            _fetchAndDisplayImage();
             selectedKota = newValue;
             int index = kotaList.indexOf(newValue!);
             if (index != -1 && index < idkota.length) {
               String selectedId = idkota[index];
               id = int.parse(selectedId);
             }
-            Endpoint.instance
-                .cuacawilayah(id)
-                .then((value) => setState(() {
-                      weatherData = value;
-                      cuaca = weatherData?[0]['cuaca'];
-                      idcuaca = weatherData?[0]['kodeCuaca'];
-                      suhu = weatherData?[0]['tempC'];
-                      waktu = weatherData?[0]['jamCuaca'];
-                      // Update the state based on the received data if needed
-                      // For example, you can extract and use the data from 'value'
-                      // var status = value["status"];
-                    }))
-                .catchError((error) {
+            Endpoint.instance.cuacawilayah(id).then((value) {
+              // Update the weatherData with the fetched data
+              setState(() {
+                weatherData = value;
+              });
+
+              // Find the weather entry that matches the current time
+              DateTime currentTime = DateTime.now();
+              Map<String, dynamic>? matchingWeather = weatherData?.firstWhere(
+                (entry) {
+                  DateTime entryTime = DateTime.parse(entry['jamCuaca']);
+                  return currentTime
+                      .isBefore(entryTime); // Find the first future entry
+                },
+                orElse: () =>
+                    weatherData?.last, // If no future entry, use the last entry
+              );
+
+              // Update variables with the matching weather entry data
+              if (matchingWeather != null) {
+                setState(() {
+                  cuaca = matchingWeather['cuaca'];
+                  idcuaca = matchingWeather['kodeCuaca'];
+                  suhu = matchingWeather['tempC'];
+                  waktu = matchingWeather['jamCuaca'];
+                });
+              } else {
+                // If matchingWeather is null, set default values or handle as needed
+                setState(() {
+                  cuaca = 'N/A';
+                  idcuaca = 'N/A';
+                  suhu = 'N/A';
+                  waktu = 'N/A';
+                });
+              }
+            }).catchError((error) {
               print('Error fetching additional data: $error');
             });
           });
