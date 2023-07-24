@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchAndDisplayImage();
+
     _fetchCurrentLocation();
   }
 
@@ -41,25 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
       fetchAdditionalData();
     } catch (error) {
       print('Error fetching current location: $error');
-    }
-  }
-
-  Future<void> _fetchAndDisplayImage() async {
-    final imageUrl = 'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png';
-    try {
-      final response = await http.get(Uri.parse(imageUrl));
-
-      if (response.statusCode == 200) {
-        // If the request is successful and the image is fetched
-        // You can use the MemoryImage to display the image directly from the response body.
-        setState(() {
-          _imageBytes = response.bodyBytes;
-        });
-      } else {
-        print('Failed to fetch the image. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error while fetching the image: $e');
     }
   }
 
@@ -173,99 +154,149 @@ class _HomeScreenState extends State<HomeScreen> {
     List todayWeatherData = filterDataByDate(todayDate);
     List tomorrowWeatherData = filterDataByDate(tomorrowDate);
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Select Kota"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 20,
-            ),
-            dropdownitem(),
-            Text(
-              '$suhu°',
-              style: const TextStyle(
-                fontSize: 80,
-              ),
-            ),
-            Text(
-              formatDateToWords(waktu),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              cuaca,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            if (idcuaca != 'N/A')
-              Image.network(
-                'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
-                width: 50, // You can adjust the size as needed
-                height: 50,
-              ),
-            Row(
-              children: [
-                if (weatherStatus != null)
+        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.blue.withOpacity(0.7),
+        body: Column(
+          children: [
+            Container(
+              height: 400,
+              color: Colors.white,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 90,
+                  ),
+                  dropdownitem(),
                   Text(
-                    'Weather Status: $weatherStatus', // Display the fetched weather status
+                    '$suhu°',
                     style: const TextStyle(
                       color: Colors.black,
-                      fontSize: 18,
+                      fontSize: 80,
                     ),
                   ),
-              ],
-            ),
-            Container(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: todayWeatherData.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildWeatherCard(todayWeatherData[index]);
-                },
+                  Text(
+                    formatDateToWords(waktu),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    cuaca,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (idcuaca != 'N/A')
+                    Image.network(
+                      'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
+                      width: 50, // You can adjust the size as needed
+                      height: 50,
+                    ),
+                  Row(
+                    children: [
+                      if (weatherStatus != null)
+                        Text(
+                          'Weather Status: $weatherStatus', // Display the fetched weather status
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
             Container(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: tomorrowWeatherData.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildWeatherCard(tomorrowWeatherData[index]);
-                },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        'Hari ini',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 160,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: todayWeatherData.length,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          SizedBox(width: 10),
+                      itemBuilder: (BuildContext context, int index) {
+                        return buildWeatherCard(todayWeatherData[index]);
+                      },
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        'Besok',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 160,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: tomorrowWeatherData.length,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          SizedBox(width: 10), // Atur lebar pemisah antar item
+                      itemBuilder: (BuildContext context, int index) {
+                        return buildWeatherCard(tomorrowWeatherData[index]);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            )
+            ),
           ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.today),
-            label: 'Today',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'Tomorrow',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        ));
+  }
+
+  Card buildTransparentBlueCard(Widget child) {
+    return Card(
+      color: Colors.blue.withOpacity(0.3), // Set the color to transparent blue
+      child: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: child,
       ),
     );
   }
 
   Widget buildWeatherCard(Map<String, dynamic> weather) {
     String weatherCode = weather['kodeCuaca'] ?? 'N/A';
-
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
+      padding: const EdgeInsets.all(15.0),
+      child: Material(
+        color: Colors.transparent, // Set the background color to white
+        elevation: 0, // Set elevation to 0 to remove the shadow
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+                8)), // Optional: You can add rounded corners if desired
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -277,10 +308,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               SizedBox(height: 4),
-
               // Text(
               //   weather['cuaca'] ?? 'N/A',
               //   style: const TextStyle(
@@ -299,6 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 '${weather['tempC']}°' ?? 'N/A',
                 style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 16,
                 ),
               ),
@@ -315,7 +347,6 @@ class _HomeScreenState extends State<HomeScreen> {
         value: selectedKota,
         onChanged: (String? newValue) {
           setState(() {
-            _fetchAndDisplayImage();
             selectedKota = newValue;
             int index = kotaList.indexOf(newValue!);
             if (index != -1 && index < idkota.length) {
@@ -323,12 +354,10 @@ class _HomeScreenState extends State<HomeScreen> {
               id = int.parse(selectedId);
             }
             Endpoint.instance.cuacawilayah(id).then((value) {
-              // Update the weatherData with the fetched data
               setState(() {
                 weatherData = value;
               });
 
-              // Find the weather entry that matches the current time
               DateTime currentTime = DateTime.now();
               Map<String, dynamic>? matchingWeather = weatherData?.firstWhere(
                 (entry) {
@@ -340,7 +369,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     weatherData?.last, // If no future entry, use the last entry
               );
 
-              // Update variables with the matching weather entry data
               if (matchingWeather != null) {
                 setState(() {
                   cuaca = matchingWeather['cuaca'];
@@ -365,7 +393,12 @@ class _HomeScreenState extends State<HomeScreen> {
         items: kotaList.map((kota) {
           return DropdownMenuItem<String>(
             value: kota,
-            child: Text(kota),
+            child: Text(
+              kota,
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
           );
         }).toList(),
         hint: const Text(
