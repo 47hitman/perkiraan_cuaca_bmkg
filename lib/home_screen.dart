@@ -92,7 +92,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String formatDateToWords(String dateTimeString) {
     try {
-      DateTime? dateTime = DateTime.tryParse(dateTimeString);
+      DateTime? dateTime;
+
+      // Jika tanggal dan waktu tidak diberikan, maka gunakan waktu sekarang
+      if (dateTimeString.isEmpty) {
+        dateTime = DateTime.now();
+      } else {
+        dateTime = DateTime.tryParse(dateTimeString);
+      }
+
       if (dateTime == null) {
         print('Error parsing date: Invalid date format');
         return 'Invalid Date';
@@ -127,12 +135,8 @@ class _HomeScreenState extends State<HomeScreen> {
           cuaca = firstData['cuaca'] ?? 'N/A';
           idcuaca = firstData['kodeCuaca'] ?? 'N/A';
           suhu = firstData['tempC'] ?? 'N/A';
-          waktu = firstData['jamCuaca'] ?? 'N/A';
+          // waktu = firstData['jamCuaca'] ?? 'N/A';
         }
-        print(cuaca);
-        print(idcuaca);
-        print(suhu);
-        print(waktu);
         print('Value from cuacawilayah: $weatherData');
         // Update the value and selectedKota after fetching data
       });
@@ -168,17 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
-                  Row(
+                  const Row(
                     children: [
                       SizedBox(
                         width: 20,
                       ),
                       Text(
                         'Hari ini',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -307,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // color: Colors.white,
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 90,
           ),
           dropdownitem(),
@@ -335,8 +339,8 @@ class _HomeScreenState extends State<HomeScreen> {
           if (idcuaca != 'N/A')
             Image.network(
               'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
-              width: 50, // You can adjust the size as needed
-              height: 50,
+              width: 90, // You can adjust the size as needed
+              height: 90,
             ),
           Row(
             children: [
@@ -388,7 +392,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   cuaca = matchingWeather['cuaca'];
                   idcuaca = matchingWeather['kodeCuaca'];
                   suhu = matchingWeather['tempC'];
-                  waktu = matchingWeather['jamCuaca'];
+                  // waktu = matchingWeather['jamCuaca'];
+                  fetchAdditionalData();
                 });
               } else {
                 // If matchingWeather is null, set default values or handle as needed
@@ -396,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   cuaca = 'N/A';
                   idcuaca = 'N/A';
                   suhu = 'N/A';
-                  waktu = 'N/A';
+                  // waktu = 'N/A';
                 });
               }
             }).catchError((error) {
