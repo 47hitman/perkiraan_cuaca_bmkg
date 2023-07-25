@@ -34,6 +34,4 @@ The app uses several packages to handle specific functionalities:
 ## Note
 Please ensure that your device has an active internet connection to fetch the latest weather data from the BMKG API. Additionally, grant the necessary permissions for the app to access your device's location if you wish to see weather data for your current location.
 
-Feel free to contribute to the app by creating pull requests or reporting issues.
 
-**Enjoy the weather updates with our app!**
