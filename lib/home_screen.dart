@@ -7,6 +7,8 @@ import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -37,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _fetchNearestCity(position.latitude, position.longitude);
       fetchAdditionalData();
     } catch (error) {
-      print('Error fetching current location: $error');
+      // print('Error fetching current location: $error');
     }
   }
 
@@ -74,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedKota = nearestCity;
       });
     } catch (error) {
-      print('Error fetching nearest city: $error');
+      // print('Error fetching nearest city: $error');
     }
   }
 
@@ -82,12 +84,12 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       DateTime? dateTime = DateTime.tryParse(dateTimeString);
       if (dateTime == null) {
-        print('Error formatting date: Invalid date format');
+        // print('Error formatting date: Invalid date format');
         return 'N/A';
       }
       return DateFormat('HH:mm').format(dateTime);
     } catch (error) {
-      print('Error formatting date: $error');
+      // print('Error formatting date: $error');
       return 'N/A';
     }
   }
@@ -104,20 +106,19 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (dateTime == null) {
-        print('Error parsing date: Invalid date format');
+        // print('Error parsing date: Invalid date format');
         return 'Invalid Date';
       }
 
-      String day = DateFormat('EEEE').format(dateTime);
+      // String day = DateFormat('EEEE').format(dateTime);
       String month = DateFormat('MMMM').format(dateTime);
       int date = dateTime.day;
       String year = DateFormat('y').format(dateTime);
       String time = DateFormat('HH:mm').format(dateTime);
 
-      // Format the date as "dayOfMonth monthName year, time" (e.g., "24 July 2023, 00:00")
       return '$date $month $year, $time';
     } catch (error) {
-      print('Error parsing date: $error');
+      // print('Error parsing date: $error');
       return 'Invalid Date';
     }
   }
@@ -140,11 +141,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // waktu = firstData['jamCuaca'] ?? 'N/A';
         }
-        print('Value from cuacawilayah: $weatherData');
-        // Update the value and selectedKota after fetching data
+        // print('Value from cuacawilayah: $weatherData');
       });
     } catch (error) {
-      print('Error fetching additional data: $error');
+      // print('Error fetching additional data: $error');
     }
   }
 
@@ -176,69 +176,67 @@ class _HomeScreenState extends State<HomeScreen> {
           : Column(
               children: [
                 tophome(),
-                Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      const Row(
-                        children: [
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Text(
-                            'Hari ini',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 150,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: todayWeatherData.length,
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const SizedBox(width: 10),
-                          itemBuilder: (BuildContext context, int index) {
-                            return buildWeatherCard(todayWeatherData[index]);
-                          },
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    const Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
                         ),
-                      ),
-                      const Row(
-                        children: [
-                          SizedBox(
-                            width: 20,
+                        Text(
+                          'Hari ini',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
-                          Text(
-                            'Besok',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        height: 150,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: tomorrowWeatherData.length,
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const SizedBox(width: 10),
-                          itemBuilder: (BuildContext context, int index) {
-                            return buildWeatherCard(tomorrowWeatherData[index]);
-                          },
                         ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 150,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: todayWeatherData.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const SizedBox(width: 10),
+                        itemBuilder: (BuildContext context, int index) {
+                          return buildWeatherCard(todayWeatherData[index]);
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                    const Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Text(
+                          'Besok',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 150,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: tomorrowWeatherData.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const SizedBox(width: 10),
+                        itemBuilder: (BuildContext context, int index) {
+                          return buildWeatherCard(tomorrowWeatherData[index]);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -288,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               const SizedBox(height: 4),
               Text(
-                '${weather['tempC']}°' ?? 'N/A',
+                '${weather['tempC']}°',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -397,7 +395,47 @@ class _HomeScreenState extends State<HomeScreen> {
           onChanged: (String? newValue) {
             setState(() {
               selectedKota = newValue;
-              // Rest of your logic here...
+              int index = kotaList.indexOf(newValue!);
+              if (index != -1 && index < idkota.length) {
+                String selectedId = idkota[index];
+                id = int.parse(selectedId);
+              }
+              Endpoint.instance.cuacawilayah(id).then((value) {
+                setState(() {
+                  weatherData = value;
+                });
+
+                DateTime currentTime = DateTime.now();
+                Map<String, dynamic>? matchingWeather = weatherData?.firstWhere(
+                  (entry) {
+                    DateTime entryTime = DateTime.parse(entry['jamCuaca']);
+                    return currentTime
+                        .isBefore(entryTime); // Find the first future entry
+                  },
+                  orElse: () => weatherData
+                      ?.last, // If no future entry, use the last entry
+                );
+
+                if (matchingWeather != null) {
+                  setState(() {
+                    cuaca = matchingWeather['cuaca'];
+                    idcuaca = matchingWeather['kodeCuaca'];
+                    suhu = matchingWeather['tempC'];
+                    // waktu = matchingWeather['jamCuaca'];
+                    fetchAdditionalData();
+                  });
+                } else {
+                  // If matchingWeather is null, set default values or handle as needed
+                  setState(() {
+                    cuaca = 'N/A';
+                    idcuaca = 'N/A';
+                    suhu = 'N/A';
+                    // waktu = 'N/A';
+                  });
+                }
+              }).catchError((error) {
+                // print('Error fetching additional data: $error');
+              });
             });
           },
           items: kotaList,

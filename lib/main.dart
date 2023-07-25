@@ -3,10 +3,12 @@ import 'home_screen.dart';
 import 'splash_screen.dart';
 
 void main() {
-  runApp(Pokemon());
+  runApp(const Cuaca());
 }
 
-class Pokemon extends StatelessWidget {
+class Cuaca extends StatelessWidget {
+  const Cuaca({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,7 +18,7 @@ class Pokemon extends StatelessWidget {
       ),
       home: SplashScreen(), // Set the SplashScreen as the initial route
       routes: {
-        '/home': (context) => HomeScreen(), // Add the HomeScreen route
+        '/home': (context) => const HomeScreen(), // Add the HomeScreen route
       },
     );
   }
