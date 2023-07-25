@@ -14,7 +14,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<String> kota = ['Select Kota'];
   List<String> kotaList = ['Select Kota'];
+
   List<dynamic>? weatherData;
   String? selectedKota;
   int id = 0;
