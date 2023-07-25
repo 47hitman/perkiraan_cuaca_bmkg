@@ -167,7 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
     List tomorrowWeatherData = filterDataByDate(tomorrowDate);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.blue.withOpacity(0.7),
+      backgroundColor:
+          weatherData == null ? Colors.white : Colors.blue.withOpacity(0.7),
       body: weatherData == null
           ? Center(
               child:
@@ -288,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 '${weather['tempC']}°',
                 style: const TextStyle(
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                   fontSize: 16,
                 ),
@@ -349,9 +351,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             formatDateToWords(waktu),
             style: const TextStyle(
+              fontWeight: FontWeight.bold,
               color: Colors.black,
               fontSize: 16,
             ),
+          ),
+          SizedBox(
+            height: 10,
           ),
           Text(
             cuaca,
@@ -379,11 +385,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget dropdownItem() {
     return Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+      padding: const EdgeInsets.only(left: 70.0, right: 70.0),
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: 'Pilih a Kota',
-          border: InputBorder.none, // Set underline border to none
+          // labelText: 'Pilih a Kota',
+          border: OutlineInputBorder(borderSide: BorderSide.none),
         ),
         child: DropdownSearch<String>(
           mode: Mode.MENU,

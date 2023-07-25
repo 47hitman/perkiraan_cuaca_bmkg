@@ -26,21 +26,10 @@ class Endpoint {
     final http.Response response = await http.get(
       Uri.parse('${apiAddress}cuaca/$wilayahCode.json'),
     );
-    // print("code cuaca");
-    // print(response.request);
-    // print(response.body);
-    // print(response);
-    return _response(response);
-  }
-
-  Future image(int kodecuaca) async {
-    final http.Response response = await http.get(
-      Uri.parse('$apiAddress$kodecuaca.png'),
-    );
-    // print("code cuaca");
-    // print(response.request);
-    // print(response.body);
-    // print(response);
+    print("code cuaca");
+    print(response.request);
+    print(response.body);
+    print(response);
     return _response(response);
   }
 }
