@@ -1,5 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, prefer_const_constructors
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String waktu = "";
   String suhu = "";
   String cuaca = "";
+
   String? weatherStatus;
   @override
   void initState() {
@@ -135,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           cuaca = firstData['cuaca'] ?? 'N/A';
           idcuaca = firstData['kodeCuaca'] ?? 'N/A';
           suhu = firstData['tempC'] ?? 'N/A';
+
           // waktu = firstData['jamCuaca'] ?? 'N/A';
         }
         print('Value from cuacawilayah: $weatherData');
@@ -158,82 +161,88 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final todayDate = DateTime.now();
-    final tomorrowDate = DateTime.now().add(Duration(days: 1));
+    final tomorrowDate = DateTime.now().add(const Duration(days: 1));
 
     List todayWeatherData = filterDataByDate(todayDate);
     List tomorrowWeatherData = filterDataByDate(tomorrowDate);
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        backgroundColor: Colors.blue.withOpacity(0.7),
-        body: Column(
-          children: [
-            tophome(),
-            Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  const Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.blue.withOpacity(0.7),
+      body: weatherData == null
+          ? Center(
+              child:
+                  CircularProgressIndicator(), // You can use any loading widget you like
+            )
+          : Column(
+              children: [
+                tophome(),
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 30,
                       ),
-                      Text(
-                        'Hari ini',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                      const Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            'Hari ini',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 150,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: todayWeatherData.length,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(width: 10),
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildWeatherCard(todayWeatherData[index]);
+                          },
+                        ),
+                      ),
+                      const Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            'Besok',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 150,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: tomorrowWeatherData.length,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(width: 10),
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildWeatherCard(tomorrowWeatherData[index]);
+                          },
                         ),
                       ),
                     ],
                   ),
-                  Container(
-                    height: 160,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: todayWeatherData.length,
-                      separatorBuilder: (BuildContext context, int index) =>
-                          SizedBox(width: 10),
-                      itemBuilder: (BuildContext context, int index) {
-                        return buildWeatherCard(todayWeatherData[index]);
-                      },
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Text(
-                        'Besok',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    height: 160,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: tomorrowWeatherData.length,
-                      separatorBuilder: (BuildContext context, int index) =>
-                          SizedBox(width: 10), // Atur lebar pemisah antar item
-                      itemBuilder: (BuildContext context, int index) {
-                        return buildWeatherCard(tomorrowWeatherData[index]);
-                      },
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ));
+    );
   }
 
   Card buildTransparentBlueCard(Widget child) {
@@ -270,14 +279,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               if (weatherCode != 'N/A')
                 Image.network(
                   'https://ibnux.github.io/BMKG-importer/icon/$weatherCode.png',
                   width: 50, // You can adjust the size as needed
                   height: 50,
                 ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 '${weather['tempC']}°' ?? 'N/A',
                 style: const TextStyle(
@@ -302,25 +311,42 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
         // You can add other properties like gradients, borders, etc.
       ),
-      height: 400,
+      height: 340,
       // color: Colors.white,
       child: Column(
         children: [
           const SizedBox(
-            height: 90,
+            height: 50,
           ),
-          dropdownitem(),
-          Text(
-            '$suhu°',
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 80,
-            ),
+          dropdownItem(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (idcuaca != 'N/A')
+                Image.network(
+                  'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
+                  width: 90, // You can adjust the size as needed
+                  height: 90,
+                ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                '$suhu°',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 80,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
           ),
           Text(
             formatDateToWords(waktu),
@@ -336,12 +362,6 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.black,
             ),
           ),
-          if (idcuaca != 'N/A')
-            Image.network(
-              'https://ibnux.github.io/BMKG-importer/icon/$idcuaca.png',
-              width: 90, // You can adjust the size as needed
-              height: 90,
-            ),
           Row(
             children: [
               if (weatherStatus != null)
@@ -359,74 +379,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget dropdownitem() {
-    return Center(
-      child: DropdownButton<String>(
-        value: selectedKota,
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedKota = newValue;
-            int index = kotaList.indexOf(newValue!);
-            if (index != -1 && index < idkota.length) {
-              String selectedId = idkota[index];
-              id = int.parse(selectedId);
-            }
-            Endpoint.instance.cuacawilayah(id).then((value) {
-              setState(() {
-                weatherData = value;
-              });
-
-              DateTime currentTime = DateTime.now();
-              Map<String, dynamic>? matchingWeather = weatherData?.firstWhere(
-                (entry) {
-                  DateTime entryTime = DateTime.parse(entry['jamCuaca']);
-                  return currentTime
-                      .isBefore(entryTime); // Find the first future entry
-                },
-                orElse: () =>
-                    weatherData?.last, // If no future entry, use the last entry
-              );
-
-              if (matchingWeather != null) {
-                setState(() {
-                  cuaca = matchingWeather['cuaca'];
-                  idcuaca = matchingWeather['kodeCuaca'];
-                  suhu = matchingWeather['tempC'];
-                  // waktu = matchingWeather['jamCuaca'];
-                  fetchAdditionalData();
-                });
-              } else {
-                // If matchingWeather is null, set default values or handle as needed
-                setState(() {
-                  cuaca = 'N/A';
-                  idcuaca = 'N/A';
-                  suhu = 'N/A';
-                  // waktu = 'N/A';
-                });
-              }
-            }).catchError((error) {
-              print('Error fetching additional data: $error');
-            });
-          });
-        },
-        items: kotaList.map((kota) {
-          return DropdownMenuItem<String>(
-            value: kota,
-            child: Text(
-              kota,
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-          );
-        }).toList(),
-        hint: const Text(
-          "Please choose ",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+  Widget dropdownItem() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Pilih a Kota',
+          border: InputBorder.none, // Set underline border to none
+        ),
+        child: DropdownSearch<String>(
+          mode: Mode.MENU,
+          showSearchBox: true,
+          searchBoxDecoration: InputDecoration(
+            hintText: 'Search for Kota...',
+            border: OutlineInputBorder(),
           ),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedKota = newValue;
+              // Rest of your logic here...
+            });
+          },
+          items: kotaList,
+          selectedItem: selectedKota,
+          hint: "Please choose",
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please choose a Kota';
+            }
+            return null; // No validation error
+          },
         ),
       ),
     );

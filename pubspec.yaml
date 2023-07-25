@@ -39,6 +39,7 @@ dependencies:
   geolocator: ^9.0.2
   permission_handler: ^10.2.0
   intl: ^0.18.1
+  dropdown_search: ^0.5.0
   
 dev_dependencies:
   flutter_test:
