@@ -70,9 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         kotaList.clear();
         kotaList.add('Select Kota');
+
         for (var item in data) {
-          kotaList.add(item['kota'] as String);
+          String kotaWithId = '${item['kota']} (ID: ${item['id']})';
+          kotaList.add(kotaWithId);
         }
+
         selectedKota = nearestCity;
       });
     } catch (error) {
@@ -400,12 +403,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           onChanged: (String? newValue) {
             setState(() {
+              print(newValue);
               selectedKota = newValue;
-              int index = kotaList.indexOf(newValue!);
-              if (index != -1 && index < idkota.length) {
-                String selectedId = idkota[index];
-                id = int.parse(selectedId);
-              }
+
+              // Extract the ID from the selected value using substring or regex
+              String? idString = newValue
+                  ?.split(RegExp(r'[(]ID: '))
+                  .elementAt(1)
+                  .replaceAll(')', '');
+              id = int.tryParse(idString ?? '')!;
+
+              print('Selected Kota: $selectedKota, ID: $id');
+
               Endpoint.instance.cuacawilayah(id).then((value) {
                 setState(() {
                   weatherData = value;
@@ -439,6 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // waktu = 'N/A';
                   });
                 }
+                // Rest of your code...
               }).catchError((error) {
                 // print('Error fetching additional data: $error');
               });
