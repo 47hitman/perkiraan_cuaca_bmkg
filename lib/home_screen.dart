@@ -2,7 +2,11 @@
 
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cool_card_swiper/constants.dart';
+import 'package:flutter_cool_card_swiper/data.dart';
+import 'package:flutter_cool_card_swiper/widgets/cool_swiper.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_card/image_card.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 import 'package:intl/intl.dart';
@@ -183,97 +187,118 @@ class _HomeScreenState extends State<HomeScreen> {
     List tomorrowWeatherData = filterDataByDate(tomorrowDate);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor:
-          weatherData == null ? Colors.white : Colors.blue.withOpacity(0.7),
+      backgroundColor: Colors.white,
+      // weatherData == null ? Colors.white : Colors.blue.withOpacity(0.5),
       body: weatherData == null
-          ? Center(
-              child: SizedBox(
-                  height: 60,
-                  width: 60,
-                  child: LoadingIndicator(
-                      indicatorType: Indicator.ballRotateChase,
+          ? SizedBox(
+              height: 60,
+              width: 60,
+              child: LoadingIndicator(
+                  indicatorType: Indicator.ballRotateChase,
 
-                      /// Required, The loading type of the widget
-                      colors: _kDefaultRainbowColors,
+                  /// Required, The loading type of the widget
+                  colors: _kDefaultRainbowColors,
 
-                      /// Optional, The color collections
-                      strokeWidth: 5,
+                  /// Optional, The color collections
+                  strokeWidth: 5,
 
-                      /// Optional, The stroke of the line, only applicable to widget which contains line
-                      // backgroundColor: Colors.black,
+                  /// Optional, The stroke of the line, only applicable to widget which contains line
+                  // backgroundColor: Colors.black,
 
-                      /// Optional, Background of the widget
-                      pathBackgroundColor: Colors.black
+                  /// Optional, Background of the widget
+                  pathBackgroundColor: Colors.black
 
-                      /// Optional, the stroke backgroundColor
-                      ) // You can use any loading widget you like),)
+                  /// Optional, the stroke backgroundColor
+                  ) // You can use any loading widget you like),)
 
-                  ))
+              )
           : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 tophome(),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    const Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          'Hari ini',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 150,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: todayWeatherData.length,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(width: 10),
-                        itemBuilder: (BuildContext context, int index) {
-                          return buildWeatherCard(todayWeatherData[index]);
-                        },
+                Container(
+                  margin: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.7),
+                    borderRadius:
+                        BorderRadius.circular(10), // Add the border radius here
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.grey.withOpacity(0.5),
+                    //     spreadRadius: 5,
+                    //     blurRadius: 10,
+                    //     offset: const Offset(0, 3),
+                    //   ),
+                    // ],
+                    // You can add other properties like gradients, borders, etc.
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 30,
                       ),
-                    ),
-                    const Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          'Besok',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                      const Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 150,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tomorrowWeatherData.length,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(width: 10),
-                        itemBuilder: (BuildContext context, int index) {
-                          return buildWeatherCard(tomorrowWeatherData[index]);
-                        },
+                          Text(
+                            'Hari ini',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(
+                        height: 150,
+                        child: ListView.separated(
+                          physics: NeverScrollableScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: todayWeatherData.length,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(width: 3),
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildWeatherCard(todayWeatherData[index]);
+                          },
+                        ),
+                      ),
+                      const Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            'Besok',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 150,
+                        child: ListView.separated(
+                          physics: NeverScrollableScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: tomorrowWeatherData.length,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const SizedBox(width: 3),
+                          itemBuilder: (BuildContext context, int index) {
+                            return buildWeatherCard(tomorrowWeatherData[index]);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
     );
@@ -339,19 +364,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget tophome() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(10), // Add the border radius here
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.withOpacity(0.5),
+        //     spreadRadius: 5,
+        //     blurRadius: 10,
+        //     offset: const Offset(0, 3),
+        //   ),
+        // ],
         // You can add other properties like gradients, borders, etc.
       ),
-      height: 340,
+      height: 310,
       // color: Colors.white,
       child: Column(
         children: [
@@ -431,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
           showSearchBox: true,
           searchBoxDecoration: InputDecoration(
             hintText: 'Search for Kota...',
-            border: OutlineInputBorder(),
+            border: OutlineInputBorder(borderSide: BorderSide.none),
           ),
           onChanged: (String? newValue) {
             setState(() {
@@ -495,6 +520,26 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             return null; // No validation error
           },
+          dropdownSearchDecoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.transparent),
+            ),
+          ),
+          // Change the color of the selected item
         ),
       ),
     );
