@@ -8,6 +8,8 @@ This is a weather app that utilizes the BMKG API (https://ibnux.github.io/BMKG-i
 - permission_handler: ^10.2.0
 - intl: ^0.18.1
 - dropdown_search: ^0.5.0
+- loading_indicator 3.1.1
+  
 <img src="https://cdn.discordapp.com/attachments/1055490015834157058/1133654537748615198/Screenshot_1690354569.png" alt="Image" width="400" height="auto">
 
 ## Features
