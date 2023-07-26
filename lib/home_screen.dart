@@ -190,28 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       // weatherData == null ? Colors.white : Colors.blue.withOpacity(0.5),
       body: weatherData == null
-          ? SizedBox(
-              height: 60,
-              width: 60,
-              child: LoadingIndicator(
-                  indicatorType: Indicator.ballRotateChase,
-
-                  /// Required, The loading type of the widget
-                  colors: _kDefaultRainbowColors,
-
-                  /// Optional, The color collections
-                  strokeWidth: 5,
-
-                  /// Optional, The stroke of the line, only applicable to widget which contains line
-                  // backgroundColor: Colors.black,
-
-                  /// Optional, Background of the widget
-                  pathBackgroundColor: Colors.black
-
-                  /// Optional, the stroke backgroundColor
-                  ) // You can use any loading widget you like),)
-
-              )
+          ? loading()
           : Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -443,6 +422,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget loading() {
+    return Center(
+        child: SizedBox(
+            height: 60,
+            width: 60,
+            child: LoadingIndicator(
+                indicatorType: Indicator.ballRotateChase,
+
+                /// Required, The loading type of the widget
+                colors: _kDefaultRainbowColors,
+
+                /// Optional, The color collections
+                strokeWidth: 5,
+
+                /// Optional, The stroke of the line, only applicable to widget which contains line
+                // backgroundColor: Colors.black,
+
+                /// Optional, Background of the widget
+                pathBackgroundColor: Colors.black
+
+                /// Optional, the stroke backgroundColor
+                ) // You can use any loading widget you like),)
+
+            ));
+  }
+
   Widget dropdownItem() {
     return Padding(
       padding: const EdgeInsets.only(left: 70.0, right: 70.0),
@@ -494,6 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     idcuaca = matchingWeather['kodeCuaca'];
                     suhu = matchingWeather['tempC'];
                     // waktu = matchingWeather['jamCuaca'];
+                    weatherData = null;
                     fetchAdditionalData();
                   });
                 } else {
