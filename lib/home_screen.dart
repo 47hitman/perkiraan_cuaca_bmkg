@@ -3,8 +3,19 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:perkiraan_cuaca_bmkg/services/endpoint.dart';
 import 'package:intl/intl.dart';
+
+const List<Color> _kDefaultRainbowColors = [
+  Colors.red,
+  Colors.orange,
+  Colors.yellow,
+  Colors.green,
+  Colors.blue,
+  Colors.indigo,
+  Colors.purple,
+];
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -176,9 +187,28 @@ class _HomeScreenState extends State<HomeScreen> {
           weatherData == null ? Colors.white : Colors.blue.withOpacity(0.7),
       body: weatherData == null
           ? Center(
-              child:
-                  CircularProgressIndicator(), // You can use any loading widget you like
-            )
+              child: SizedBox(
+                  height: 60,
+                  width: 60,
+                  child: LoadingIndicator(
+                      indicatorType: Indicator.ballRotateChase,
+
+                      /// Required, The loading type of the widget
+                      colors: _kDefaultRainbowColors,
+
+                      /// Optional, The color collections
+                      strokeWidth: 5,
+
+                      /// Optional, The stroke of the line, only applicable to widget which contains line
+                      // backgroundColor: Colors.black,
+
+                      /// Optional, Background of the widget
+                      pathBackgroundColor: Colors.black
+
+                      /// Optional, the stroke backgroundColor
+                      ) // You can use any loading widget you like),)
+
+                  ))
           : Column(
               children: [
                 tophome(),
