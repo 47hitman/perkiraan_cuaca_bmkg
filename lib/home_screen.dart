@@ -511,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // waktu = 'N/A';
                   });
                 }
-                // Rest of your code...
+              
               }).catchError((error) {
                 // print('Error fetching additional data: $error');
               });
